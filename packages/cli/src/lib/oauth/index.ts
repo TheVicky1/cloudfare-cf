@@ -256,7 +256,10 @@ export function getProfileStore() {
 
 /** Resolve and select the explicit, environment, or directory-bound auth profile. */
 export function resolveProfile(profile?: string, cwd = process.cwd()): string {
-	const resolved = getProfileStore().resolve({ profile, cwd });
+	const envProfile =
+		process.env.CLOUDFLARE_PROFILE || process.env.CLOUDFLARE_AUTH_PROFILE;
+	const candidate = profile || envProfile || undefined;
+	const resolved = getProfileStore().resolve({ profile: candidate, cwd });
 	setProfile(resolved);
 	return resolved;
 }

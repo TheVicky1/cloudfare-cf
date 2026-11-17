@@ -378,4 +378,32 @@ describe("createCommandClient", () => {
 			).rejects.toThrow("Invalid cf OAuth scope(s): bad_scope_a, bad_scope_b.");
 		});
 	});
+
+	describe("resolveProfile", () => {
+		it("resolves CLOUDFLARE_PROFILE from environment", async () => {
+			const { resolveProfile, getActiveProfile } =
+				await import("../../lib/oauth/index.js");
+			vi.stubEnv("CLOUDFLARE_PROFILE", "work");
+			try {
+				const resolved = resolveProfile();
+				expect(resolved).toBe("work");
+				expect(getActiveProfile()).toBe("work");
+			} finally {
+				resolveProfile("default");
+			}
+		});
+
+		it("prefers explicit profile argument over CLOUDFLARE_PROFILE", async () => {
+			const { resolveProfile, getActiveProfile } =
+				await import("../../lib/oauth/index.js");
+			vi.stubEnv("CLOUDFLARE_PROFILE", "work");
+			try {
+				const resolved = resolveProfile("personal");
+				expect(resolved).toBe("personal");
+				expect(getActiveProfile()).toBe("personal");
+			} finally {
+				resolveProfile("default");
+			}
+		});
+	});
 });
